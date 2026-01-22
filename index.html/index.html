@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>90天低碳生活挑戰賽 - ESG 企業行動</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+        }
+
+        .eco-gradient {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-active {
+            color: #10B981;
+        }
+
+        .page-content {
+            transition: all 0.3s ease;
+        }
+
+        .hidden-page {
+            display: none !important;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .champion-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .btn-disabled {
+            opacity: 0.4;
+            filter: grayscale(1);
+            cursor: not-allowed !important;
+            border-color: transparent !important;
+        }
+    </style>
+</head>
+<body class="max-w-md mx-auto min-h-screen pb-28 relative">
+
+    <!-- 登錄頁面 -->
+    <div id="login-overlay" class="fixed inset-0 bg-slate-50 z-[200] flex flex-col items-center justify-center p-8">
+        <div class="w-20 h-20 eco-gradient rounded-[2rem] flex items-center justify-center shadow-lg shadow-emerald-200 mb-8">
+            <i data-lucide="leaf" class="w-10 h-10 text-white"></i>
+        </div>
+        <div class="text-center mb-10">
+            <h1 class="text-2xl font-black text-slate-800 mb-2">90天低碳挑戰賽</h1>
+            <p class="text-slate-400 text-sm italic font-light">Empowering ESG through Action</p>
+        </div>
+        
+        <div class="w-full bg-white p-8 rounded-[3rem] card-shadow border border-slate-100">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">員工工號 Login ID</label>
+            <input type="text" id="employee-id" placeholder="請輸入工號 (e.g. 20220406)" 
+                class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold focus:ring-2 focus:ring-emerald-500 transition-all mb-6 outline-none">
+            <button onclick="handleLogin()" class="w-full eco-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-200 active:scale-[0.98] transition-all">
+                進入挑戰
+            </button>
+        </div>
+        <p class="mt-8 text-[10px] text-slate-300">© 2024 ASYS Corp. All Rights Reserved.</p>
+    </div>
+
+    <!-- 主應用內容 (默認隱藏) -->
+    <div id="app-container" class="hidden">
+        <!-- 頁面容器: 任務首頁 -->
+        <div id="page-home" class="page-content">
+            <header class="eco-gradient text-white p-8 rounded-b-[3rem] card-shadow">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-xs opacity-80 font-light tracking-widest uppercase">Eco Challenge</p>
+                        <h1 class="text-2xl font-bold italic">Hi <span id="user-display-name">---</span></h1>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-md relative">
+                        <i data-lucide="leaf" class="w-6 h-6"></i>
+                        <div id="champion-badge" class="hidden absolute -top-2 -right-2 bg-yellow-400 p-1 rounded-full border-2 border-white champion-icon">
+                            <i data-lucide="crown" class="w-3 h-3 text-yellow-900"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 flex justify-around text-center border border-white/20">
+                    <div>
+                        <p class="text-[10px] opacity-70 mb-1 tracking-tighter">目前積分</p>
+                        <p class="text-3xl font-bold" id="total-points">52</p>
+                    </div>
+                    <div class="w-px bg-white/20 h-10 my-auto"></div>
+                    <div>
+                        <p class="text-[10px] opacity-70 mb-1 tracking-tighter">公司排名</p>
+                        <p class="text-3xl font-bold">28</p>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6 space-y-8">
+                <!-- 進度條 -->
+                <section class="bg-white p-6 rounded-[2.5rem] card-shadow border border-slate-100">
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                            <i data-lucide="gift" class="w-4 h-4 text-emerald-500"></i>
+                            終點：ESG 響應假
+                        </h3>
+                        <p class="text-[10px] text-slate-400">尚需 <span class="text-emerald-500 font-bold" id="points-needed">36</span> pt</p>
+                    </div>
+                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden relative mb-2">
+                        <div id="reward-progress" class="eco-gradient h-full w-[59%] transition-all duration-500"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 px-1">
+                        <span>33pt 禮券</span>
+                        <span>66pt 禮券</span>
+                        <span class="text-emerald-600 font-bold">88pt 響應假</span>
+                    </div>
+                </section>
+
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center px-1">
+                        <h3 class="font-bold text-slate-800">每日五秒簽到</h3>
+                        <span id="daily-status-tag" class="text-[9px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">每日限任選一項打卡</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3" id="task-grid">
+                        <button onclick="openCheckIn('初級', '環保杯', 1, 'cup')" id="task-cup" class="flex flex-col items-center justify-center bg-white aspect-square rounded-[2rem] card-shadow border-2 border-transparent active:scale-95 transition-all">
+                            <span class="text-3xl mb-2">🥤</span>
+                            <span class="text-xs font-bold text-slate-600">環保杯</span>
+                            <span class="text-[9px] text-slate-400 mt-1">+1pt</span>
+                        </button>
+                        <button onclick="openCheckIn('初級', '自備便當', 1, 'box')" id="task-box" class="flex flex-col items-center justify-center bg-white aspect-square rounded-[2rem] card-shadow border-2 border-transparent active:scale-95 transition-all">
+                            <span class="text-3xl mb-2">🍱</span>
+                            <span class="text-xs font-bold text-slate-600">自備便當</span>
+                            <span class="text-[9px] text-slate-400 mt-1">+1pt</span>
+                        </button>
+                        <button onclick="openCheckIn('初級', '購物袋', 1, 'bag')" id="task-bag" class="flex flex-col items-center justify-center bg-white aspect-square rounded-[2rem] card-shadow border-2 border-transparent active:scale-95 transition-all">
+                            <span class="text-3xl mb-2">🛍️</span>
+                            <span class="text-xs font-bold text-slate-600">購物袋</span>
+                            <span class="text-[9px] text-slate-400 mt-1">+1pt</span>
+                        </button>
+                        <button onclick="openCheckIn('進階', '運動30分', 2, 'sport')" id="task-sport" class="flex flex-col items-center justify-center bg-white aspect-square rounded-[2rem] card-shadow border-2 border-transparent active:scale-95 transition-all">
+                            <span class="text-3xl mb-2">🏃</span>
+                            <span class="text-xs font-bold text-slate-600">運動30分</span>
+                            <span class="text-[9px] text-blue-400 mt-1">+2pt</span>
+                        </button>
+                        <button onclick="openCheckIn('進階', '低碳通勤', 2, 'bike')" id="task-bike" class="flex flex-col items-center justify-center bg-white aspect-square rounded-[2rem] card-shadow border-2 border-transparent active:scale-95 transition-all">
+                            <span class="text-3xl mb-2">🚲</span>
+                            <span class="text-xs font-bold text-slate-600">低碳通勤</span>
+                            <span class="text-[9px] text-blue-400 mt-1">+2pt</span>
+                        </button>
+                        <button onclick="openCheckIn('進階', '數位減碳', 2, 'email')" id="task-email" class="flex flex-col items-center justify-center bg-white aspect-square rounded-[2rem] card-shadow border-2 border-transparent active:scale-95 transition-all">
+                            <span class="text-3xl mb-2">📧</span>
+                            <span class="text-xs font-bold text-slate-600">數位減碳</span>
+                            <span class="text-[9px] text-blue-400 mt-1">+2pt</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 頁面容器: 排行榜 -->
+        <div id="page-rank" class="page-content hidden-page p-6 pt-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <i data-lucide="trophy" class="text-yellow-500"></i>
+                公司英雄榜
+            </h2>
+            <div class="bg-slate-900 rounded-[2.5rem] p-6 space-y-4 shadow-xl" id="leaderboard-list"></div>
+        </div>
+
+        <!-- 頁面容器: 兌換 -->
+        <div id="page-shop" class="page-content hidden-page p-6 pt-12">
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="text-2xl font-bold tracking-tight">點數換好禮</h2>
+                <p class="text-[10px] text-slate-400 font-medium bg-slate-100 px-3 py-1 rounded-full">累積制</p>
+            </div>
+            <div class="space-y-4" id="shop-items">
+                <div class="bg-white p-5 rounded-[2rem] card-shadow border border-slate-50 flex items-center gap-5">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl">🎫</div>
+                    <div class="flex-1">
+                        <p class="font-bold text-[10px] text-blue-500 mb-0.5 italic uppercase">Edenred</p>
+                        <p class="font-bold text-sm text-slate-700">100元 即享券</p>
+                        <p class="text-emerald-500 font-black text-sm mt-1">33 <span class="text-[10px] font-normal text-slate-400">pt</span></p>
+                    </div>
+                    <button onclick="requestRedeem('Edenred 100元即享券', 33)" id="btn-redeem-33" class="px-4 py-2 rounded-xl text-xs font-bold">兌換</button>
+                </div>
+                <div class="bg-white p-5 rounded-[2rem] card-shadow border border-slate-50 flex items-center gap-5">
+                    <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center text-3xl">🎁</div>
+                    <div class="flex-1">
+                        <p class="font-bold text-[10px] text-purple-500 mb-0.5 italic uppercase">Edenred</p>
+                        <p class="font-bold text-sm text-slate-700">300元 即享券</p>
+                        <p class="text-emerald-500 font-black text-sm mt-1">66 <span class="text-[10px] font-normal text-slate-400">pt</span></p>
+                    </div>
+                    <button onclick="requestRedeem('Edenred 300元即享券', 66)" id="btn-redeem-66" class="px-4 py-2 rounded-xl text-xs font-bold">兌換</button>
+                </div>
+                <div class="bg-white p-5 rounded-[2rem] card-shadow border border-emerald-50 flex items-center gap-5">
+                    <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl">🏖️</div>
+                    <div class="flex-1">
+                        <p class="font-bold text-[10px] text-emerald-500 mb-0.5 italic uppercase">Corporate Reward</p>
+                        <p class="font-bold text-sm text-slate-700">1 天 ESG 響應假</p>
+                        <p class="text-emerald-500 font-black text-sm mt-1">88 <span class="text-[10px] font-normal text-slate-400">pt</span></p>
+                    </div>
+                    <button onclick="requestRedeem('1天 ESG 響應假', 88)" id="btn-redeem-88" class="px-4 py-2 rounded-xl text-xs font-bold">領取</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 頁面容器: 我的 -->
+        <div id="page-me" class="page-content hidden-page p-6 pt-12">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-emerald-50 rounded-full mx-auto mb-4 border-4 border-white shadow-md flex items-center justify-center">
+                    <i data-lucide="user" class="w-10 h-10 text-emerald-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800" id="me-user-name">---</h2>
+                <p class="text-xs text-slate-400 mt-1 italic" id="me-user-id-sub">Employee ID: ---</p>
+                
+                <div class="flex justify-center gap-2 mt-6">
+                    <button onclick="resetApp()" class="text-[9px] text-slate-300 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-slate-50 transition-all">重置今日(測試)</button>
+                    <button onclick="logout()" class="text-[9px] text-red-400 border border-red-100 px-3 py-1.5 rounded-full bg-red-50/30 hover:bg-red-50 transition-all">登出帳號</button>
+                </div>
+            </div>
+            <div class="px-6 mb-8">
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border border-slate-50 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">目前積分</p>
+                    <p class="text-5xl font-black text-emerald-600" id="me-points">52</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部導航 -->
+        <nav class="fixed bottom-6 left-6 right-6 max-w-md mx-auto bg-white/90 backdrop-blur-xl border border-slate-100 rounded-[2.5rem] shadow-2xl flex justify-around p-3 z-40">
+            <button onclick="switchPage('home')" id="nav-home" class="flex flex-col items-center nav-active">
+                <div class="p-2"><i data-lucide="zap" class="w-5 h-5"></i></div>
+                <span class="text-[9px] font-black uppercase tracking-widest">行動</span>
+            </button>
+            <button onclick="switchPage('rank')" id="nav-rank" class="flex flex-col items-center text-slate-300">
+                <div class="p-2"><i data-lucide="award" class="w-5 h-5"></i></div>
+                <span class="text-[9px] font-black uppercase tracking-widest">排行</span>
+            </button>
+            <button onclick="switchPage('shop')" id="nav-shop" class="flex flex-col items-center text-slate-300">
+                <div class="p-2"><i data-lucide="gift" class="w-5 h-5"></i></div>
+                <span class="text-[9px] font-black uppercase tracking-widest">兌換</span>
+            </button>
+            <button onclick="switchPage('me')" id="nav-me" class="flex flex-col items-center text-slate-300">
+                <div class="p-2"><i data-lucide="user" class="w-5 h-5"></i></div>
+                <span class="text-[9px] font-black uppercase tracking-widest">我的</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- 訊息提示 Modal -->
+    <div id="message-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] hidden items-center justify-center p-8">
+        <div class="bg-white w-full rounded-[3rem] p-8 text-center animate-in zoom-in duration-300">
+            <div id="msg-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"></div>
+            <h2 id="msg-title" class="text-xl font-bold mb-2 text-slate-800"></h2>
+            <p id="msg-body" class="text-sm text-slate-500 mb-6"></p>
+            <div class="flex gap-3">
+                <button id="msg-cancel" onclick="closeMsgModal()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-2xl font-bold text-sm">取消</button>
+                <button id="msg-confirm" class="flex-1 eco-gradient text-white py-3 rounded-2xl font-bold text-sm shadow-md">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 簽到 Modal -->
+    <div id="checkin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden items-center justify-center p-8">
+        <div class="bg-white w-full rounded-[3rem] p-8 text-center animate-in zoom-in duration-300">
+            <h2 id="modal-title" class="text-2xl font-bold mb-2 text-slate-800"></h2>
+            <p id="modal-desc" class="text-sm text-slate-500 mb-6"></p>
+            <div class="aspect-video bg-slate-50 rounded-3xl mb-6 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 text-slate-400">
+                <i data-lucide="camera" class="w-8 h-8 mb-2"></i>
+                <p class="text-xs">拍照證明 (ESG查核用)</p>
+            </div>
+            <button onclick="confirmCheckIn()" class="w-full eco-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-lg">確認送出</button>
+            <button onclick="closeModal()" class="mt-4 text-slate-400 text-sm">取消</button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // 員工數據映射 (工號: 英文名)
+        const employeeMap = {
+            "20220406": "Lasting",
+            "10610": "Admin",
+            "20230101": "EcoHero"
+            // 可在此處繼續添加員工數據
+        };
+
+        // 狀態管理
+        let state = JSON.parse(localStorage.getItem('eco_app_state')) || {
+            points: 52,
+            history: [],
+            userId: null 
+        };
+
+        const TARGET_POINTS = 88;
+        let currentTask = { title: '', pt: 0, id: '' };
+
+        function saveState() {
+            localStorage.setItem('eco_app_state', JSON.stringify(state));
+            updateUI();
+        }
+
+        // 獲取顯示名稱的輔助函數
+        function getDisplayName(id) {
+            return employeeMap[id] || id;
+        }
+
+        // 登錄處理
+        function handleLogin() {
+            const input = document.getElementById('employee-id');
+            const id = input.value.trim();
+            if (!id) {
+                alert("請輸入工號");
+                return;
+            }
+            state.userId = id;
+            saveState();
+            checkLoginStatus();
+        }
+
+        function checkLoginStatus() {
+            const loginOverlay = document.getElementById('login-overlay');
+            const appContainer = document.getElementById('app-container');
+            
+            if (state.userId) {
+                loginOverlay.classList.add('hidden-page');
+                appContainer.classList.remove('hidden');
+                
+                // 更新顯示名稱
+                const displayName = getDisplayName(state.userId);
+                document.getElementById('user-display-name').innerText = displayName;
+                document.getElementById('me-user-name').innerText = displayName;
+                document.getElementById('me-user-id-sub').innerText = `Employee ID: ${state.userId}`;
+                
+                updateUI();
+            } else {
+                loginOverlay.classList.remove('hidden-page');
+                appContainer.classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            if (confirm("確定要登出並切換工號嗎？")) {
+                state.userId = null;
+                saveState();
+                location.reload();
+            }
+        }
+
+        function resetApp() {
+            if(confirm("重置今日打卡紀錄以進行測試？")) {
+                state.history = state.history.filter(h => h.date !== getTodayString());
+                saveState();
+                location.reload();
+            }
+        }
+
+        function getTodayString() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function hasDoneAnyTaskToday() {
+            return state.history.some(h => h.date === getTodayString());
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden-page'));
+            document.getElementById(`page-${pageId}`).classList.remove('hidden-page');
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('nav-active');
+                b.classList.add('text-slate-300');
+            });
+            const activeNav = document.getElementById(`nav-${pageId}`);
+            if (activeNav) {
+                activeNav.classList.add('nav-active');
+                activeNav.classList.remove('text-slate-300');
+            }
+        }
+
+        function openCheckIn(level, title, pt, id) {
+            if (hasDoneAnyTaskToday()) {
+                showSimpleMsg("今日限額已滿", "您今天已經完成過一項低碳行動囉！請明天再接再厲。", "info");
+                return;
+            }
+            currentTask = { title, pt, id };
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = `${level}任務：獲得 ${pt} pt`;
+            document.getElementById('checkin-modal').classList.remove('hidden');
+            document.getElementById('checkin-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('checkin-modal').classList.add('hidden');
+            document.getElementById('checkin-modal').classList.remove('flex');
+        }
+
+        function confirmCheckIn() {
+            state.points += currentTask.pt;
+            state.history.push({ date: getTodayString(), task: currentTask.id });
+            saveState();
+            closeModal();
+            showSimpleMsg("行動成功", `恭喜獲得 ${currentTask.pt} pt！您今日的低碳目標已達成。`, "success");
+        }
+
+        function requestRedeem(itemName, cost) {
+            if (state.points < cost) {
+                showSimpleMsg("點數不足", `兌換 ${itemName} 需要 ${cost} pt，請再接再厲！`, "error");
+                return;
+            }
+            showConfirmMsg(
+                "確認兌換", 
+                `確定要申請兌換「${itemName}」嗎？系統將發信給管理員進行照片核對。`, 
+                () => {
+                    sendRedeemEmail(itemName, cost);
+                    closeMsgModal();
+                }
+            );
+        }
+
+        function sendRedeemEmail(itemName, cost) {
+            const recipient = "10610@asys-corp.com";
+            const subject = encodeURIComponent(`【ESG兌換】${itemName} - 工號:${state.userId}`);
+            const body = encodeURIComponent(`主辦單位您好，我是工號 ${state.userId} (${getDisplayName(state.userId)})，我要兌換：${itemName}。`);
+            window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+        }
+
+        function showSimpleMsg(title, body, type) {
+            const modal = document.getElementById('message-modal');
+            const icon = document.getElementById('msg-icon');
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = body;
+            document.getElementById('msg-cancel').classList.add('hidden');
+            document.getElementById('msg-confirm').onclick = closeMsgModal;
+
+            if(type === "error") {
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100 text-red-500";
+                icon.innerHTML = '<i data-lucide="alert-circle" class="w-8 h-8"></i>';
+            } else if(type === "success") {
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-100 text-emerald-600";
+                icon.innerHTML = '<i data-lucide="check-circle" class="w-8 h-8"></i>';
+            } else {
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-blue-100 text-blue-600";
+                icon.innerHTML = '<i data-lucide="info" class="w-8 h-8"></i>';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function showConfirmMsg(title, body, onConfirm) {
+            const modal = document.getElementById('message-modal');
+            const icon = document.getElementById('msg-icon');
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = body;
+            document.getElementById('msg-cancel').classList.remove('hidden');
+            document.getElementById('msg-confirm').onclick = onConfirm;
+            icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-amber-100 text-amber-600";
+            icon.innerHTML = '<i data-lucide="help-circle" class="w-8 h-8"></i>';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeMsgModal() {
+            document.getElementById('message-modal').classList.add('hidden');
+            document.getElementById('message-modal').classList.remove('flex');
+        }
+
+        function updateUI() {
+            const p = state.points;
+            document.getElementById('total-points').innerText = p;
+            if(document.getElementById('me-points')) document.getElementById('me-points').innerText = p;
+            
+            const progress = (p / TARGET_POINTS) * 100;
+            const rewardBar = document.getElementById('reward-progress');
+            if(rewardBar) rewardBar.style.width = `${Math.min(progress, 100)}%`;
+            
+            const neededEl = document.getElementById('points-needed');
+            if(neededEl) neededEl.innerText = Math.max(0, TARGET_POINTS - p);
+            
+            const isDoneToday = hasDoneAnyTaskToday();
+            const tag = document.getElementById('daily-status-tag');
+            
+            ['cup', 'box', 'bag', 'sport', 'bike', 'email'].forEach(id => {
+                const btn = document.getElementById(`task-${id}`);
+                if(!btn) return;
+                const historyItem = state.history.find(h => h.date === getTodayString() && h.task === id);
+                
+                if (isDoneToday) {
+                    btn.classList.add('btn-disabled');
+                    if (historyItem) {
+                        btn.querySelector('span:last-child').innerText = '今日已選';
+                        btn.classList.add('border-emerald-500');
+                    } else {
+                        btn.querySelector('span:last-child').innerText = '明日請早';
+                    }
+                } else {
+                    btn.classList.remove('btn-disabled');
+                    btn.classList.remove('border-emerald-500');
+                    const pts = id === 'cup' || id === 'box' || id === 'bag' ? '+1pt' : '+2pt';
+                    btn.querySelector('span:last-child').innerText = pts;
+                }
+            });
+
+            if (tag) {
+                if (isDoneToday) {
+                    tag.innerText = "今日打卡已完成";
+                    tag.className = "text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold";
+                } else {
+                    tag.innerText = "每日限任選一項打卡";
+                    tag.className = "text-[9px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium";
+                }
+            }
+
+            const btn33 = document.getElementById('btn-redeem-33');
+            const btn66 = document.getElementById('btn-redeem-66');
+            const btn88 = document.getElementById('btn-redeem-88');
+            
+            const styleBtn = (btn, cost, active) => {
+                if(!btn) return;
+                if(p >= cost) btn.className = `${active} px-4 py-2 rounded-xl text-xs font-bold text-white shadow-sm`;
+                else btn.className = `bg-slate-100 text-slate-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed opacity-50`;
+            };
+            styleBtn(btn33, 33, 'bg-blue-500');
+            styleBtn(btn66, 66, 'bg-purple-500');
+            styleBtn(btn88, 88, 'eco-gradient');
+
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            if(!list) return;
+            list.innerHTML = '';
+            
+            const currentName = getDisplayName(state.userId);
+            const dummyRank = [
+                { name: "王小明", dept: "IT", pt: 145 },
+                { name: "李小姐", dept: "HR", pt: 128 },
+                { name: `${currentName} (You)`, dept: "Your Dept", pt: state.points, isMe: true }
+            ];
+
+            const sorted = [...dummyRank].sort((a, b) => b.pt - a.pt);
+
+            sorted.forEach((user, idx) => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-4 rounded-3xl ${user.isMe ? 'bg-white/10 ring-1 ring-emerald-500/50' : ''}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <span class="w-4 font-black ${idx === 0 ? 'text-yellow-400' : 'text-slate-500'}">${idx + 1}</span>
+                        <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-xs uppercase">${user.name[0]}</div>
+                        <div class="text-white">
+                            <p class="text-xs font-bold">${user.name}</p>
+                            <p class="text-[9px] opacity-40">${user.dept}</p>
+                        </div>
+                    </div>
+                    <p class="font-bold ${idx === 0 ? 'text-yellow-400' : 'text-emerald-400'}">${user.pt} pt</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // 初始化檢查
+        checkLoginStatus();
+    </script>
+</body>
+</html>
